@@ -219,7 +219,7 @@ async function onMessageHandler(target, context, msg, self) {
   const commandName = msg.trim().slice(1);
 
   if (commandName === "help") {
-    client.say(target, `${context['display-name']} A full reference can be found at `);
+    client.say(target, `${context['display-name']} A full reference can be found at https://bit.ly/3Hgd7WG`);
   }
 
   // Random Stuff
