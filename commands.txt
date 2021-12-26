@@ -1,0 +1,35 @@
+<stuff> => required input
+[stuff] => optional input
+
+!help
+    Leads you to this file
+
+!dice
+    Rolls a dice for you.
+    You can specify the number of sides with "!dice d[sides]"
+    The default is 6 sides.
+
+!8ball
+    Ask the magic 8ball a question.
+    You can specify the question with "!8ball [question]"
+    There is no default question.
+
+!fact
+    Gives you a random fact about the world.
+  
+!randomquote
+    Gives you a random quote.
+
+!connect4
+    Starts or joins a game of connect 4.
+
+!move
+    Moves a piece in connect 4.
+    You can specify the column with "!move <column>"
+    You can only use this command if you are in a game of connect 4.
+
+!light
+    Controls the light.
+    You can specify the color with "!light [color]" or turn it on or off with "!light [on | off]".
+    The command without any options gives you the state of the light.
+    The command underlies a cooldown of 90 seconds.
