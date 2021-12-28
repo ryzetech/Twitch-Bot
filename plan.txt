@@ -1,5 +1,5 @@
 DONE zitate
-4 gewinnt
+DONE 4 gewinnt
 DONE licht steuern
 DONE random irgendwas
 DONE random fakten
