@@ -325,9 +325,12 @@ async function onMessageHandler(target, context, msg, self) {
   }
 
   if (commandName.startsWith("light")) {
-    if (timeouts.light.stamp + timeouts.light.timeout > Date.now() && (!context['mod'] || !context.username === "ryzetech")) {
+    if (timeouts.light.stamp + timeouts.light.timeout > Date.now() && (!context['mod'] || !context.username === target)) {
       client.say(target, `${context['display-name']} You can't do that yet.`);
+      return;
     }
+
+    timeouts.light.stamp = Date.now();
 
     const light = commandName.slice(6);
 
