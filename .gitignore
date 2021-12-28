@@ -2,3 +2,5 @@ token.json
 node_modules/
 .vscode/
 yarn*
+current.png
+renderer.html
