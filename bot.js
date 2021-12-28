@@ -85,7 +85,6 @@ class Connect4game {
 
     if (this.checkForWinner()) {
       this.renderBoard();
-      this.gameOver = true;
       this.winner = this.turn;
       client.say("ryzetech", `${this.winner} wins the game!`);
       currentC4Game = null;
@@ -153,26 +152,22 @@ class Connect4game {
   renderBoard() {
     let chipstack = [];
 
-    if (!this.gameOver) {
-      for (let i = 0; i < 6; i++) {
-        for (let j = 0; j < 7; j++) {
-          let column = this.board[i][j];
-          if (column === this.opponent1) {
-            chipstack.push(new Object({ input: "./imgs/chip_red.png", top: (25 + 300 * i), left: (25 + 300 * j) }));
-          } else if (column === this.opponent2) {
-            chipstack.push(new Object({ input: "./imgs/chip_yellow.png", top: (25 + 300 * i), left: (25 + 300 * j) }));
-          }
+    for (let i = 0; i < 6; i++) {
+      for (let j = 0; j < 7; j++) {
+        let column = this.board[i][j];
+        if (column === this.opponent1) {
+          chipstack.push(new Object({ input: "./imgs/chip_red.png", top: (25 + 300 * i), left: (25 + 300 * j) }));
+        } else if (column === this.opponent2) {
+          chipstack.push(new Object({ input: "./imgs/chip_yellow.png", top: (25 + 300 * i), left: (25 + 300 * j) }));
         }
       }
-
-      sharp("./imgs/board.png")
-        .composite(chipstack)
-        .toFile("./current.png", (err, info) => {
-          if (err !== null) console.log(err);
-        });
-    } else {
-
     }
+
+    sharp("./imgs/board.png")
+      .composite(chipstack)
+      .toFile("./current.png", (err, info) => {
+        if (err !== null) console.log(err);
+      });
   }
 
   clearBoard() {
@@ -234,6 +229,36 @@ function onConnectedHandler(addr, port) {
 // message handler
 async function onMessageHandler(target, context, msg, self) {
   // ignore if message comes from self or does not contain a command
+  // check if message is a number between 1 and 7
+  if ((msg.length === 1 && msg.match(/^[1-7]$/)) && currentC4Game !== null && !currentC4Game.startsWith("looking ")) {
+    let nr = parseInt(msg);
+
+    if (context['display-name'] === currentC4Game.opponent1 || context['display-name'] === currentC4Game.opponent2) {
+      // reject if the user is not the current player
+      if (currentC4Game.turn !== context['display-name']) {
+        client.say(target, `${context['display-name']} It's not your turn!`);
+        return;
+      }
+
+      // try to place chip
+      let success = currentC4Game.placeChip(column);
+
+      if (success) {
+        // check if the game is over
+        if (!currentC4Game) {
+          return;
+        }
+        client.say(target, "Chip placed!");
+        currentC4Game.renderBoard();
+      }
+      else {
+        client.say(target, "Column is full.");
+      }
+    }
+    else return;
+  }
+
+  // check if message is a command or comes from self
   if (self || !msg.startsWith("!")) { return; }
 
   // parse
@@ -315,42 +340,11 @@ async function onMessageHandler(target, context, msg, self) {
       const game = new Connect4game(currentC4Game.slice(8), context['display-name']);
       game.renderBoard();
       currentC4Game = game;
-      client.say(target, `${context['display-name']} has joined the game of connect 4! Type "!move <column>" to make a move.`);
+      client.say(target, `${context['display-name']} has joined the game of connect 4! Type the column as a number to make a move.`);
+      client.say(target, `It's ${currentC4Game.player1}'s turn!`);
     } else {
       // reject if the game is already in progress
       client.say(target, `${context['display-name']} A game of connect 4 is already in progress.`);
-    }
-  }
-
-  if (commandName.startsWith("move")) {
-    const column = parseInt(commandName.slice(5));
-
-    // reject if there is no game or if the game is in looking phase
-    if (!currentC4Game || currentC4Game.toString().startsWith("looking ")) {
-      client.say(target, `${context['display-name']} You have to create or join the game first! Type "!connect4" to do so.`);
-    } else {
-      // reject if the user is not the current player
-      if (currentC4Game.turn !== context['display-name']) {
-        client.say(target, `${context['display-name']} It's not your turn!`);
-        return;
-      }
-      if (column < 1 || column > 7) {
-        // reject invalid column
-        client.say(target, `${context['display-name']} Column must be between 1 and 7.`);
-      } else {
-        // try to place chip
-        let success = currentC4Game.placeChip(column);
-        if (success) {
-          // check if the game is over
-          if (!currentC4Game) {
-            return;
-          }
-          client.say(target, "Chip placed!");
-          currentC4Game.renderBoard();
-        } else {
-          client.say(target, "Column is full.");
-        }
-      }
     }
   }
 
@@ -360,7 +354,7 @@ async function onMessageHandler(target, context, msg, self) {
     if (!(context['mod'] || ("#" + context.username === target))) {
       // reject if command is in timeout
       if (timeouts.light.stamp + timeouts.light.timeout > Date.now()) {
-        client.say(target, `${context['display-name']} You can't do that yet.`);
+        client.say(target, `${context['display-name']} You can't do that yet. Try again in ${(timeouts.light.timeout - Date.now()) / 1000} seconds.`);
         return;
       } else {
         // reset timeout
