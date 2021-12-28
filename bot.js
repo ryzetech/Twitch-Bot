@@ -78,10 +78,18 @@ class Connect4game {
         break;
       }
     }
-    // check for winner
-    this.checkForWinner();
-    // switch turn
+
+    if (this.checkForWinner()) {
+      this.renderBoard();
+      this.gameOver = true;
+      this.winner = this.turn;
+      client.say("ryzetech", `${this.winner} wins the game!`);
+      currentC4Game = null;
+      setTimeout(this.clearBoard, 3000);
+    }
+
     this.switchTurn();
+
     return true;
   }
 
@@ -304,6 +312,9 @@ async function onMessageHandler(target, context, msg, self) {
       } else {
         let success = currentC4Game.placeChip(column);
         if (success) {
+          if (!currentC4Game) {
+            return;
+          }
           client.say(target, "Chip placed!");
           currentC4Game.renderBoard();
         } else {
