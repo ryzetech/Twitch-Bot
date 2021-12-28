@@ -1,3 +1,4 @@
+// importing things
 const tmi = require('tmi.js');
 const sharp = require('sharp');
 const fetch = require('node-fetch');
@@ -5,6 +6,7 @@ const axios = require("axios").default;
 const { client_token, deconz } = require("./token.json");
 const colors = require('./colors');
 
+// options for chat client
 const opts = {
   identity: {
     username: "finnleythebot",
@@ -15,6 +17,7 @@ const opts = {
   ]
 };
 
+// timeout save object
 var timeouts = {
   light: {
     stamp: 0,
@@ -22,6 +25,7 @@ var timeouts = {
   }
 };
 
+// do client stuff
 const client = new tmi.client(opts);
 
 client.on('message', onMessageHandler);
@@ -183,6 +187,7 @@ class Connect4game {
 
 // FUNCTS BEGIN
 
+// hex to xy colors 
 function hexToXy(hexstring) {
   if (hexstring.length != 6) {
     throw "Only six-digit hex colors are allowed.";
@@ -213,8 +218,12 @@ function hexToXy(hexstring) {
   return [x, y];
 }
 
+// do things on connect
 function onConnectedHandler(addr, port) {
+  // print connector message
   console.log(`* Connected to ${addr}:${port}`);
+
+  // reset board for connect4
   sharp("./imgs/board.png")
     .composite([{ input: "./imgs/txt.png" }])
     .toFile("./current.png", (err, info) => {
@@ -222,23 +231,31 @@ function onConnectedHandler(addr, port) {
     });
 }
 
+// message handler
 async function onMessageHandler(target, context, msg, self) {
+  // ignore if message comes from self or does not contain a command
   if (self || !msg.startsWith("!")) { return; }
+
+  // parse
   const commandName = msg.trim().slice(1);
 
   if (commandName === "help") {
+    // i got lazy here dont judge me
     client.say(target, `${context['display-name']} A full reference can be found at https://bit.ly/3Hgd7WG`);
   }
 
-  // Random Stuff
   if (commandName.startsWith("dice")) {
+    // take sides parameter
     let sides = commandName.slice(5).split("d")[1];
+
+    // if it doesn't exist, default to 6
     if (!sides) sides = 6;
     const roll = Math.floor(Math.random() * sides) + 1;
     client.say(target, `${context['display-name']} rolled a ${roll} on a ${sides} sided die.`);
   }
 
   if (commandName.startsWith("8ball")) {
+    // responses yes yes
     const responses = [
       "It is certain",
       "It is decidedly so",
@@ -261,7 +278,10 @@ async function onMessageHandler(target, context, msg, self) {
       "Outlook not so good",
       "Very doubtful"
     ];
+
+    // pick a random response
     const response = responses[Math.floor(Math.random() * responses.length)];
+
     client.say(target, `${context['display-name']} asked the magic 8 ball: ${msg.slice(7)}... ${response}`);
   }
 
@@ -278,21 +298,26 @@ async function onMessageHandler(target, context, msg, self) {
   }
 
   if (commandName.startsWith("connect4")) {
-    // const subcommand = commandName.slice(9);
+    // check if there is a game existing
     if (currentC4Game === null) {
       currentC4Game = "looking " + context['display-name'];
       client.say(target, `${context['display-name']} is looking for a game of connect 4! Type !connect4 to join.`);
     }
+    // check if the game is looking for a player
     else if (currentC4Game.toString().startsWith("looking ")) {
+      // check if the user tries to join the game they are already in
       if (currentC4Game.slice(8) === context['display-name']) {
         client.say(target, `${context['display-name']} you can't play with yourself!`);
         return;
       }
+
+      // create new game and link the users to it
       const game = new Connect4game(currentC4Game.slice(8), context['display-name']);
       game.renderBoard();
       currentC4Game = game;
       client.say(target, `${context['display-name']} has joined the game of connect 4! Type "!move <column>" to make a move.`);
     } else {
+      // reject if the game is already in progress
       client.say(target, `${context['display-name']} A game of connect 4 is already in progress.`);
     }
   }
@@ -300,18 +325,23 @@ async function onMessageHandler(target, context, msg, self) {
   if (commandName.startsWith("move")) {
     const column = parseInt(commandName.slice(5));
 
+    // reject if there is no game or if the game is in looking phase
     if (!currentC4Game || currentC4Game.toString().startsWith("looking ")) {
       client.say(target, `${context['display-name']} You have to create or join the game first! Type "!connect4" to do so.`);
     } else {
+      // reject if the user is not the current player
       if (currentC4Game.turn !== context['display-name']) {
         client.say(target, `${context['display-name']} It's not your turn!`);
         return;
       }
       if (column < 1 || column > 7) {
+        // reject invalid column
         client.say(target, `${context['display-name']} Column must be between 1 and 7.`);
       } else {
+        // try to place chip
         let success = currentC4Game.placeChip(column);
         if (success) {
+          // check if the game is over
           if (!currentC4Game) {
             return;
           }
@@ -325,46 +355,59 @@ async function onMessageHandler(target, context, msg, self) {
   }
 
   if (commandName.startsWith("light")) {
+    // override timeout if the user is a moderator or the broadcaster
+    // else
     if (!(context['mod'] || ("#" + context.username === target))) {
+      // reject if command is in timeout
       if (timeouts.light.stamp + timeouts.light.timeout > Date.now()) {
         client.say(target, `${context['display-name']} You can't do that yet.`);
         return;
       } else {
+        // reset timeout
         timeouts.light.stamp = Date.now();
       }
     }
 
+    // get option
     const light = commandName.slice(6);
 
+    // check if option has to do with light state
     if (light === "on" || light === "off" || light.startsWith("#000000") || light === "black") {
       const response = await axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: (light === "on") });
       const resdata = await response.data;
       client.say(target, `${context['display-name']} turned the light ${(light === "on") ? "on" : "off"}.`);
     }
     else {
+      // if there is no option, return state
       if (!light) {
         const response = await axios.get("http://homeassistant.local:6942/api/" + deconz + "/lights/7");
         const resdata = await response.data;
         client.say(target, `${context['display-name']} lights are ${resdata.state.on ? "on" : "off"}.`);
       }
 
+      // if there is a hex color, set color
       else if (light.startsWith("#")) {
         const response = await axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, xy: hexToXy(light.slice(1, 7)) });
         const resdata = await response.data;
         client.say(target, `${context['display-name']} turned the light to ${light}`);
       }
       else {
+        // try to find the color by word
         const color = light.toLowerCase();
         const colorList = colors.map(c => c.name.toLowerCase());
         const colorIndex = colorList.indexOf(color);
+        // reject if color couldn't be found
         if (colorIndex === -1) {
           client.say(target, `${context['display-name']} I don't know the color ${color}.`);
           return;
         }
+        // get hex value of the color
         const colorHex = colors[colorIndex].hex;
 
+        // get xy value of the color
         const xy = hexToXy(colorHex.slice(1));
 
+        // send changes to deconz
         const response = await axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", {
           on: true,
           xy: xy
