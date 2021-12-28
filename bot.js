@@ -35,7 +35,8 @@ client.connect();
 
 // VARS BEGIN
 let currentC4Game = null;
-
+let lightLock = false;
+let currentColor = [];
 
 // CLASSES BEGIN
 
@@ -54,13 +55,17 @@ class Connect4game {
     ];
     this.winner = null;
     this.gameOver = false;
+    lightLock = true;
+    axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, xy: hexToXy("00FF00") });
   }
 
   switchTurn() {
     if (this.turn === this.opponent1) {
       this.turn = this.opponent2;
+      axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, xy: hexToXy("FFFF00") });
     } else {
       this.turn = this.opponent1;
+      axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, xy: hexToXy("00FF00") });
     }
   }
 
@@ -176,6 +181,8 @@ class Connect4game {
       .toFile("./current.png", (err, info) => {
         if (err !== null) console.log(err);
       });
+    lightLock = false;
+    axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, xy: currentColor });
   }
 }
 
@@ -228,10 +235,9 @@ function onConnectedHandler(addr, port) {
 
 // message handler
 async function onMessageHandler(target, context, msg, self) {
-  // ignore if message comes from self or does not contain a command
-  // check if message is a number between 1 and 7
-  if ((msg.length === 1 && msg.match(/^[1-7]$/)) && currentC4Game !== null && !currentC4Game.startsWith("looking ")) {
-    let nr = parseInt(msg);
+  // check if message is a number between 1 and 7 (connect 4)
+  if ((msg.length === 1 && msg.match(/^[1-7]$/)) && currentC4Game !== null && !currentC4Game.toString().startsWith("looking ")) {
+    let column = parseInt(msg);
 
     if (context['display-name'] === currentC4Game.opponent1 || context['display-name'] === currentC4Game.opponent2) {
       // reject if the user is not the current player
@@ -258,7 +264,7 @@ async function onMessageHandler(target, context, msg, self) {
     else return;
   }
 
-  // check if message is a command or comes from self
+  // ignore if message comes from self or does not contain a command
   if (self || !msg.startsWith("!")) { return; }
 
   // parse
@@ -341,7 +347,7 @@ async function onMessageHandler(target, context, msg, self) {
       game.renderBoard();
       currentC4Game = game;
       client.say(target, `${context['display-name']} has joined the game of connect 4! Type the column as a number to make a move.`);
-      client.say(target, `It's ${currentC4Game.player1}'s turn!`);
+      client.say(target, `It's ${currentC4Game.opponent1}'s turn!`);
     } else {
       // reject if the game is already in progress
       client.say(target, `${context['display-name']} A game of connect 4 is already in progress.`);
@@ -352,9 +358,9 @@ async function onMessageHandler(target, context, msg, self) {
     // override timeout if the user is a moderator or the broadcaster
     // else
     if (!(context['mod'] || ("#" + context.username === target))) {
-      // reject if command is in timeout
-      if (timeouts.light.stamp + timeouts.light.timeout > Date.now()) {
-        client.say(target, `${context['display-name']} You can't do that yet. Try again in ${(timeouts.light.timeout - Date.now()) / 1000} seconds.`);
+      // reject if command is in timeout or locked
+      if (timeouts.light.stamp + timeouts.light.timeout > Date.now() || lightLock) {
+        client.say(target, `${context['display-name']} You can't do that yet. ${(lightLock) ? "The light is currently locked by another bot application." : `Try again in ${(timeouts.light.timeout - Date.now()) / 1000} seconds.`} `);
         return;
       } else {
         // reset timeout
@@ -381,7 +387,10 @@ async function onMessageHandler(target, context, msg, self) {
 
       // if there is a hex color, set color
       else if (light.startsWith("#")) {
-        const response = await axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, xy: hexToXy(light.slice(1, 7)) });
+        let xy = hexToXy(light.slice(1, 7));
+        currentColor = xy;
+
+        const response = await axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, xy: xy });
         const resdata = await response.data;
         client.say(target, `${context['display-name']} turned the light to ${light}`);
       }
@@ -400,6 +409,7 @@ async function onMessageHandler(target, context, msg, self) {
 
         // get xy value of the color
         const xy = hexToXy(colorHex.slice(1));
+        currentColor = xy;
 
         // send changes to deconz
         const response = await axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", {
