@@ -231,6 +231,9 @@ function onConnectedHandler(addr, port) {
     .toFile("./current.png", (err, info) => {
       if (err !== null) console.log(err);
     });
+
+  // turn on light
+  axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, bri: 150 });
 }
 
 // message handler
@@ -243,6 +246,7 @@ async function onMessageHandler(target, context, msg, self) {
       // reject if the user is not the current player
       if (currentC4Game.turn !== context['display-name']) {
         client.say(target, `${context['display-name']} It's not your turn!`);
+        const response = await axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { alert: "lselect" });
         return;
       }
 
