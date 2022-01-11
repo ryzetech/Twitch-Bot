@@ -14,7 +14,7 @@ module.exports = [
   { name: 'beige', hex: '#F5F5DC' },
   { name: 'fuchsia', hex: '#FF00FF' },
   { name: 'gold', hex: '#FFD700' },
-  { name: 'magenta', hex: '#FF00FF' },
+  { name: 'magenta', hex: '#e20074' }, // haha telekom
   { name: 'orange', hex: '#FFA500' },
   { name: 'pink', hex: '#FFC0CB' },
   { name: 'red', hex: '#FF0000' },
