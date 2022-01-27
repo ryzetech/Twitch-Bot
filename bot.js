@@ -66,7 +66,7 @@ class Connect4game {
       axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, xy: hexToXy("FFFF00") });
     } else {
       this.turn = this.opponent1;
-      axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, xy: hexToXy("00FF00") });
+      axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, xy: hexToXy("FF0000") });
     }
   }
 
