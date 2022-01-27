@@ -232,7 +232,7 @@ function onConnectedHandler(addr, port) {
     });
 
   // turn on light
-  axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, bri: 150 });
+  axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, bri: 50 });
 }
 
 // message handler
