@@ -3,6 +3,8 @@ const tmi = require('tmi.js');
 const sharp = require('sharp');
 const fetch = require('node-fetch');
 const axios = require("axios").default;
+import { PrismaClient } from '@prisma/client'
+const prisma = new PrismaClient();
 const { client_token, deconz } = require("./token.json");
 const colors = require('./colors');
 const colorList = colors.map(c => c.name.toLowerCase());
@@ -237,6 +239,9 @@ function onConnectedHandler(addr, port) {
 
 // message handler
 async function onMessageHandler(target, context, msg, self) {
+  // ignore messages from self
+  if (self) return;
+
   // check if message is a number between 1 and 7 (connect 4)
   if ((msg.length === 1 && msg.match(/^[1-7]$/)) && currentC4Game !== null && !currentC4Game.toString().startsWith("looking ")) {
     let column = parseInt(msg);
@@ -267,8 +272,8 @@ async function onMessageHandler(target, context, msg, self) {
     else return;
   }
 
-  // ignore if message comes from self or does not contain a command
-  if (self || !msg.startsWith("!")) { return; }
+  // ignore if message does not contain a command
+  if (!msg.startsWith("!")) { return; }
 
   // parse
   const commandName = msg.trim().slice(1);
@@ -363,7 +368,7 @@ async function onMessageHandler(target, context, msg, self) {
     if (!(context['mod'] || ("#" + context.username === target))) {
       // reject if command is in timeout or locked
       if (timeouts.light.stamp + timeouts.light.timeout > Date.now() || lightLock) {
-        client.say(target, `${context['display-name']} You can't do that yet. ${(lightLock) ? "The light is currently locked by another bot application." : `Try again in ${(timeouts.light.timeout - Date.now()) / 1000} seconds.`} `);
+        client.say(target, `${context['display-name']} You can't do that yet. ${(lightLock) ? "The light is currently locked by another bot application." : `Try again in ${(timeouts.light.stamp - Date.now()) / 1000} seconds.`} `);
         return;
       } else {
         // reset timeout
