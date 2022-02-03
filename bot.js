@@ -183,7 +183,7 @@ class Connect4game {
         if (err !== null) console.log(err);
       });
     lightLock = false;
-    axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, xy: currentColor });
+    axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, xy: currentColor }).then((response) => {});
   }
 }
 
@@ -422,5 +422,9 @@ async function onMessageHandler(target, context, msg, self) {
         client.say(target, `${context['display-name']} turned the light ${color}`);
       }
     }
+  }
+
+  if (commandName.startsWith("lurk")) {
+    client.say(target, `${context['display-name']} Thank you for your lurk! Bring cookies and coffee when you come back! ryzeHug`);
   }
 }
