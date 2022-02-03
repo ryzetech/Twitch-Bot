@@ -4,3 +4,6 @@ node_modules/
 yarn*
 current.png
 renderer.html
+prisma/botdb.db
+prisma/migrations/migration_lock.toml
+prisma/migrations/20220203174843_init/migration.sql
