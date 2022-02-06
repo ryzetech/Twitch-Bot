@@ -234,7 +234,7 @@ function onConnectedHandler(addr, port) {
     });
 
   // turn on light
-  axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, bri: 50 });
+  // axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, bri: 50 });
 }
 
 // message handler
@@ -369,15 +369,31 @@ async function onMessageHandler(target, context, msg, self) {
       .then(json => client.say(target, `${context['display-name']} asked for a fact: "${json.text}"`));
   }
 
-  if (commandName.startsWith("randomquote")) {
-    /*
-    fetch("https://api.quotable.io/random")
-      .then(res => res.json())
-      .then(json => client.say(target, `${context['display-name']} asked for a quote: "${json.content}" ~ ${json.author}`));
-    */
+  if (commandName.startsWith("quote")) {
+    let id = parseInt(commandName.slice(6));
+
+    // if there is no id give, pick a random quote
+    if (!id) {
+      const quotes = await prisma.quote.findMany();
+      id = Math.floor(Math.random() * quotes.length);
+      client.say(target, `${context['display-name']} asked for a random quote: "${quotes[id].quote}"`);
+    }
+    else {
+      const q = await prisma.quote.findUnique({
+        where: {
+          id: id
+        }
+      });
+
+      client.say(target, `${context['display-name']} asked for a quote: "${q.quote}"`);
+      if (!q) {
+        client.say(target, `${context['display-name']} That quote doesn't exist.`);
+        return;
+      }
+    }
   }
 
-  if (commandName.startsWith("connect4")) {
+  if (commandName.startsWith("connect4")) { // the original connecting four in a row swastica youth classic
     // check if there is a game existing
     if (currentC4Game === null) {
       currentC4Game = "looking " + context['display-name'];
@@ -476,9 +492,7 @@ async function onMessageHandler(target, context, msg, self) {
 
   // mod section
   if (commandName.startsWith("addquote")) {
-    if (!context['mod']) {
-      client.say(target, `${context['display-name']} You are not a moderator!`);
-    } else {
+    if (context.badges.broadcaster || context['mod']) {
       const quote = commandName.slice(9);
       
       let qouteObj = await prisma.quote.create({
@@ -488,6 +502,8 @@ async function onMessageHandler(target, context, msg, self) {
       });
 
       client.say(target, `${context['display-name']} Quote added with ID ${qouteObj.id}`);
+    } else {
+      client.say(target, `${context['display-name']} You are not a moderator!`);
     }
   }
 }
