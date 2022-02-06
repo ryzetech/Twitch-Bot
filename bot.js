@@ -306,6 +306,11 @@ async function onMessageHandler(target, context, msg, self) {
     else return;
   }
 
+  // check if message contains "zollstock"
+  if (msg.toLowerCase().includes("zollstock")) {
+    client.say(target, "DAS HEIßT GLIEDERMAßSTAB!!!!");
+  }
+
   // ignore if message does not contain a command
   if (!msg.startsWith("!")) { return; }
 
