@@ -3,7 +3,7 @@ const tmi = require('tmi.js');
 const sharp = require('sharp');
 const fetch = require('node-fetch');
 const axios = require("axios").default;
-import { PrismaClient } from '@prisma/client'
+const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const { client_token, deconz } = require("./token.json");
 const colors = require('./colors');
@@ -242,6 +242,40 @@ async function onMessageHandler(target, context, msg, self) {
   // ignore messages from self
   if (self) return;
 
+  // find the user in the database
+  let user = await prisma.user.findUnique({
+    where: {
+      id: context["user-id"]
+    }
+  });
+
+  // if there is no user, create one
+  if (!user) {
+    user = await prisma.user.create({
+      data: {
+        id: context["user-id"],
+        username: context.username
+      }
+    });
+  }
+
+  // update msg count
+  user = await prisma.user.update(
+    {
+      where: {
+        id: user.id
+      },
+      data: {
+        messages: {
+          increment: 1
+        },
+        coins: {
+          increment: Math.floor(Math.random() * 9) + 1
+        }
+      }
+    }
+  )
+
   // check if message is a number between 1 and 7 (connect 4)
   if ((msg.length === 1 && msg.match(/^[1-7]$/)) && currentC4Game !== null && !currentC4Game.toString().startsWith("looking ")) {
     let column = parseInt(msg);
@@ -331,9 +365,11 @@ async function onMessageHandler(target, context, msg, self) {
   }
 
   if (commandName.startsWith("randomquote")) {
+    /*
     fetch("https://api.quotable.io/random")
       .then(res => res.json())
       .then(json => client.say(target, `${context['display-name']} asked for a quote: "${json.content}" ~ ${json.author}`));
+    */
   }
 
   if (commandName.startsWith("connect4")) {
@@ -431,5 +467,22 @@ async function onMessageHandler(target, context, msg, self) {
 
   if (commandName.startsWith("lurk")) {
     client.say(target, `${context['display-name']} Thank you for your lurk! Bring cookies and coffee when you come back! ryzeHug`);
+  }
+
+  // mod section
+  if (commandName.startsWith("addquote")) {
+    if (!context['mod']) {
+      client.say(target, `${context['display-name']} You are not a moderator!`);
+    } else {
+      const quote = commandName.slice(9);
+      
+      let qouteObj = await prisma.quote.create({
+        data: {
+          quote: quote
+        }
+      });
+
+      client.say(target, `${context['display-name']} Quote added with ID ${qouteObj.id}`);
+    }
   }
 }
