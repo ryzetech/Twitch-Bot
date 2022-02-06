@@ -308,7 +308,7 @@ async function onMessageHandler(target, context, msg, self) {
 
   // check if message contains "zollstock"
   if (msg.toLowerCase().includes("zollstock")) {
-    client.say(target, "DAS HEIßT GLIEDERMAßSTAB!!!!");
+    client.say(target, `${context['display-name']} DAS HEIßT GLIEDERMAßSTAB!!!!`);
   }
 
   // ignore if message does not contain a command
