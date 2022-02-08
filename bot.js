@@ -201,7 +201,7 @@ class Connect4game {
         if (err !== null) console.log(err);
       });
     lightLock = false;
-    axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, xy: currentColor }).then((response) => {});
+    axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, xy: currentColor });
   }
 }
 
@@ -438,7 +438,7 @@ async function onMessageHandler(target, context, msg, self) {
   if (commandName.startsWith("light")) {
     // override timeout if the user is a moderator or the broadcaster
     // else
-    if (true /*!(context['mod'] || ("#" + context.username === target))*/) {
+    if (!(context['mod'] || ("#" + context.username === target))) {
       // reject if command is in timeout or locked
       if (((timeouts.light.stamp + timeouts.light.timeout) > Date.now()) || lightLock) {
         client.say(target, `${context['display-name']} You can't do that yet. ${(lightLock) ? "The light is currently locked by another bot application." : `Try again in ${Math.ceil(((timeouts.light.stamp + timeouts.light.timeout) - Date.now()) / 1000)} seconds.`} `);
