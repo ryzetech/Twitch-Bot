@@ -24,7 +24,7 @@ const opts = {
 var timeouts = {
   light: {
     stamp: 0,
-    timeout: 900000
+    timeout: 90000
   }
 };
 
@@ -91,6 +91,13 @@ class Connect4game {
       }
     }
 
+    if (this.checkBoardFull()) {
+      this.renderBoard();
+      client.say("ryzetech", `The game is a draw! Well played!`);
+      currentC4Game = null;
+      setTimeout(this.clearBoard, 3000);
+    }
+
     if (this.checkForWinner()) {
       this.renderBoard();
       this.winner = this.turn;
@@ -155,6 +162,15 @@ class Connect4game {
         }
       }
     }
+  }
+
+  checkBoardFull() {
+    for (let i = 1; i < 7; i++) {
+      if (this.board[0][i] === 0) {
+        return false;
+      }
+    }
+    return true;
   }
 
   renderBoard() {
@@ -422,10 +438,10 @@ async function onMessageHandler(target, context, msg, self) {
   if (commandName.startsWith("light")) {
     // override timeout if the user is a moderator or the broadcaster
     // else
-    if (!(context['mod'] || ("#" + context.username === target))) {
+    if (true /*!(context['mod'] || ("#" + context.username === target))*/) {
       // reject if command is in timeout or locked
-      if (timeouts.light.stamp + timeouts.light.timeout > Date.now() || lightLock) {
-        client.say(target, `${context['display-name']} You can't do that yet. ${(lightLock) ? "The light is currently locked by another bot application." : `Try again in ${(timeouts.light.stamp - Date.now()) / 1000} seconds.`} `);
+      if (((timeouts.light.stamp + timeouts.light.timeout) > Date.now()) || lightLock) {
+        client.say(target, `${context['display-name']} You can't do that yet. ${(lightLock) ? "The light is currently locked by another bot application." : `Try again in ${Math.ceil(((timeouts.light.stamp + timeouts.light.timeout) - Date.now()) / 1000)} seconds.`} `);
         return;
       } else {
         // reset timeout
