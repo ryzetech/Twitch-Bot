@@ -409,7 +409,7 @@ async function onMessageHandler(target, context, msg, self) {
     }
   }
 
-  if (commandName.startsWith("connect4")) { // the original connecting four in a row swastica youth classic
+  if (commandName.startsWith("connect4")) { // the original connecting four classic
     // check if there is a game existing
     if (currentC4Game === null) {
       currentC4Game = "looking " + context['display-name'];
