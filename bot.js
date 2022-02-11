@@ -282,7 +282,11 @@ function onConnectedHandler(addr, port) {
     });
 
   // turn on light
-  // axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, bri: 50 });
+  try {
+    axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, bri: 50 });
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 // message handler
