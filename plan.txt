@@ -1,9 +1,0 @@
-DONE zitate
-DONE 4 gewinnt
-DONE licht steuern
-DONE random irgendwas
-DONE random fakten
-economy system
-- spielen
-- casino
-- sounds?

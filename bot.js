@@ -377,7 +377,7 @@ async function onMessageHandler(target, context, msg, self) {
 
   if (commandName === "help") {
     // i got lazy here dont judge me
-    client.say(target, `${context['display-name']} A full reference can be found at https://bit.ly/3Hgd7WG`);
+    client.say(target, `${context['display-name']} A full reference can be found at https://bit.ly/3BhWRTG`);
   }
 
   if (commandName.startsWith("dice")) {
