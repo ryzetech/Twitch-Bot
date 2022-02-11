@@ -543,6 +543,10 @@ async function onMessageHandler(target, context, msg, self) {
     client.say(target, `${context['display-name']} Thank you for your lurk! Bring cookies and coffee when you come back! ryzeHug`);
   }
 
+  if (commandName.startsWith("coins")) {
+    client.say(target, `${context['display-name']} You have ${user.coins} coins.`);
+  }
+
   // mod section
   if (commandName.startsWith("addquote")) {
     if (context.badges.broadcaster || context['mod']) {
