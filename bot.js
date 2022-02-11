@@ -563,4 +563,14 @@ async function onMessageHandler(target, context, msg, self) {
       client.say(target, `${context['display-name']} You are not a moderator!`);
     }
   }
+
+  if (commandName.startsWith("clearc4")) {
+    if (context.badges.broadcaster || context['mod']) {
+      currentC4Game.clearBoard();
+      currentC4Game = null;
+      client.say(target, `${context['display-name']} The game of connect 4 has been cleared and new players can start a game.`);
+    } else {
+      client.say(target, `${context['display-name']} You are not a moderator!`);
+    }
+  }
 }
