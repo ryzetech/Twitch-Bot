@@ -28,6 +28,12 @@ var timeouts = {
   }
 };
 
+const options = {
+  light: {
+    cost: 50
+  }
+}
+
 // do client stuff
 const client = new tmi.client(opts);
 
