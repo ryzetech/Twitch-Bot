@@ -45,6 +45,11 @@ let currentColor = [];
 
 class Connect4game {
   constructor(opponent1, opponent2) {
+    if (this.opponent2 === undefined) {
+      this.isLooking = true;
+      return;
+    }
+
     this.opponent1 = opponent1;
     this.opponent2 = opponent2;
     this.turn = opponent1;
@@ -101,7 +106,34 @@ class Connect4game {
     if (this.checkForWinner()) {
       this.renderBoard();
       this.winner = this.turn;
-      client.say("ryzetech", `${this.winner} wins the game!`);
+      client.say("ryzetech", `${this.winner.username} wins the game!`);
+      let data2 = (this.winner === this.opponent1) ? true : false;
+      let data1 = prisma.user.update({
+        where: {
+          id: this.winner.id
+        },
+        data: {
+          connect4played: {
+            increment: 1
+          },
+          connect4won: {
+            increment: 1
+          },
+          coins: {
+            increment: 150
+          }
+        }
+      });
+      data2 = prisma.user.update({
+        where: {
+          id: (data2) ? this.opponent1.id : this.opponent2.id
+        },
+        data: {
+          connect4played: {
+            increment: 1
+          }
+        }
+      });
       currentC4Game = null;
       setTimeout(this.clearBoard, 3000);
     }
@@ -412,19 +444,20 @@ async function onMessageHandler(target, context, msg, self) {
   if (commandName.startsWith("connect4")) { // the original connecting four classic
     // check if there is a game existing
     if (currentC4Game === null) {
-      currentC4Game = "looking " + context['display-name'];
+      currentC4Game = new Connect4game(user);
       client.say(target, `${context['display-name']} is looking for a game of connect 4! Type !connect4 to join.`);
     }
     // check if the game is looking for a player
-    else if (currentC4Game.toString().startsWith("looking ")) {
+    else if (currentC4Game.isLooking) {
       // check if the user tries to join the game they are already in
-      if (currentC4Game.slice(8) === context['display-name']) {
+      if (currentC4Game.opponent1.username === context.username){
         client.say(target, `${context['display-name']} you can't play with yourself!`);
         return;
       }
 
       // create new game and link the users to it
-      const game = new Connect4game(currentC4Game.slice(8), context['display-name']);
+      const game = new Connect4game(currentC4Game.opponent1, user);
+      currentC4Game = game;
       game.renderBoard();
       currentC4Game = game;
       client.say(target, `${context['display-name']} has joined the game of connect 4! Type the column as a number to make a move.`);
