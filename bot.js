@@ -486,6 +486,23 @@ async function onMessageHandler(target, context, msg, self) {
       }
     }
 
+    // check if the user has enough coins
+    if (user.coins < options.light.cost) {
+      client.say(target, `${context['display-name']} You don't have enough coins! You need at least ${options.light.cost} coins to use this command (you have ${user.coins}).`);
+      return;
+    } else {
+      user = await prisma.user.update({
+        where: {
+          id: user.id
+        },
+        data: {
+          coins: {
+            decrement: options.light.cost
+          }
+        }
+      });
+    }
+
     // get option
     const light = commandName.slice(6);
 
@@ -519,6 +536,16 @@ async function onMessageHandler(target, context, msg, self) {
         // reject if color couldn't be found
         if (colorIndex === -1) {
           client.say(target, `${context['display-name']} I don't know the color ${color}.`);
+          user = await prisma.user.update({
+            where: {
+              id: user.id
+            },
+            data: {
+              coins: {
+                increment: options.light.cost
+              }
+            }
+          });
           return;
         }
         // get hex value of the color
