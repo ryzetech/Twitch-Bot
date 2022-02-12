@@ -51,13 +51,14 @@ let currentColor = [];
 
 class Connect4game {
   constructor(opponent1, opponent2) {
-    if (this.opponent2 === undefined) {
+    this.opponent1 = opponent1;
+    this.opponent2 = opponent2;
+
+    if (!this.opponent2) {
       this.isLooking = true;
       return;
     }
 
-    this.opponent1 = opponent1;
-    this.opponent2 = opponent2;
     this.turn = opponent1;
     this.board = [
       [0, 0, 0, 0, 0, 0, 0],
@@ -276,7 +277,7 @@ function hexToXy(hexstring) {
 }
 
 // do things on connect
-function onConnectedHandler(addr, port) {
+async function onConnectedHandler(addr, port) {
   // print connector message
   console.log(`* Connected to ${addr}:${port}`);
 
@@ -289,7 +290,9 @@ function onConnectedHandler(addr, port) {
 
   // turn on light
   try {
-    axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, bri: 50 });
+    await axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, bri: 50 });
+    const resdata = await axios.get("http://homeassistant.local:6942/api/" + deconz + "/lights/7");
+    currentColor = await resdata.data.state.xy;
   } catch (e) {
     console.error(e);
   }
@@ -335,12 +338,12 @@ async function onMessageHandler(target, context, msg, self) {
   )
 
   // check if message is a number between 1 and 7 (connect 4)
-  if ((msg.length === 1 && msg.match(/^[1-7]$/)) && currentC4Game !== null && !currentC4Game.toString().startsWith("looking ")) {
+  if ((msg.length === 1 && msg.match(/^[1-7]$/)) && currentC4Game !== null && !currentC4Game.isLooking) {
     let column = parseInt(msg);
 
-    if (context['display-name'] === currentC4Game.opponent1 || context['display-name'] === currentC4Game.opponent2) {
+    if (user.id === currentC4Game.opponent1.id || user.id === currentC4Game.opponent2.id) {
       // reject if the user is not the current player
-      if (currentC4Game.turn !== context['display-name']) {
+      if (currentC4Game.turn.id !== user.id) {
         client.say(target, `${context['display-name']} It's not your turn!`);
         const response = await axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { alert: "lselect" });
         return;
@@ -469,9 +472,8 @@ async function onMessageHandler(target, context, msg, self) {
       const game = new Connect4game(currentC4Game.opponent1, user);
       currentC4Game = game;
       game.renderBoard();
-      currentC4Game = game;
       client.say(target, `${context['display-name']} has joined the game of connect 4! Type the column as a number to make a move.`);
-      client.say(target, `It's ${currentC4Game.opponent1}'s turn!`);
+      client.say(target, `It's ${currentC4Game.opponent1.username}'s turn!`);
     } else {
       // reject if the game is already in progress
       client.say(target, `${context['display-name']} A game of connect 4 is already in progress.`);
