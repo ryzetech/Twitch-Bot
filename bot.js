@@ -49,11 +49,23 @@ client.connect();
 const wss = new WebSocket.Server({ port: 4001 });
 
 wss.on("connection", function connection(ws) {
+  ws.on("open", function open() {
+    console.log("[Chillhop2WS] Connection opened.");
+    fs.writeFileSync("./datagen/title.txt", "Chillhop2WS - Connection opened");
+    fs.writeFileSync("./datagen/artist.txt", "Waiting for data...");
+  });
+
   ws.on("message", function incoming(e) {
     let data = JSON.parse(e);
-    console.log(data);
+    console.log("[Chillhop2WS] Data: " + JSON.stringify(data));
     fs.writeFileSync("./datagen/title.txt", data.title);
     fs.writeFileSync("./datagen/artist.txt", data.artist);
+  });
+
+  ws.on("close", function close(e) {
+    console.log("[Chillhop2WS] Connection closed.");
+    fs.writeFileSync("./datagen/title.txt", "");
+    fs.writeFileSync("./datagen/artist.txt", "");
   });
 });
 
