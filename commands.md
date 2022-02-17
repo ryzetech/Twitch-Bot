@@ -45,6 +45,14 @@ Control the light by writing a color as an argument, e.g. `!light green`.
 You can also use hex codes: `!light #bada55`  
 This action will cost you 50 coins.
 
+# Welcome Sounds
+Those sounds can only be played by their owner to notify me that they arrived. If you want a sound, contact me! You probably know my Discord tag :p
+
+| User       | Respective command |
+|------------|--------------------|
+| Aquastics  | !fisch             |
+| sayoohnara | !murk              |
+
 # Mods
 Here are some commands for mods only. Don't be surprised if you can't use them, Kevin!
 
