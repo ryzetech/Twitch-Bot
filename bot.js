@@ -258,9 +258,9 @@ function hexToXy(hexstring) {
   let green = parseInt(aRgbHex[1], 16);
   let blue = parseInt(aRgbHex[2], 16);
 
-  let redC = (red / 255)
-  let greenC = (green / 255)
-  let blueC = (blue / 255)
+  let redC = (red / 255);
+  let greenC = (green / 255);
+  let blueC = (blue / 255);
 
   // honestly, i have idea what this is doing
   let redN = (redC > 0.04045) ? Math.pow((redC + 0.055) / (1.0 + 0.055), 2.4) : (redC / 12.92)
