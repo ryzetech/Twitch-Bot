@@ -2,6 +2,7 @@
   "dependencies": {
     "@prisma/client": "^3.9.1",
     "axios": "^0.24.0",
+    "play-sound": "^1.1.5",
     "prisma": "^3.9.1",
     "sharp": "^0.29.3",
     "tmi.js": "^1.8.5"

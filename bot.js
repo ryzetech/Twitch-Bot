@@ -10,9 +10,10 @@ const colors = require('./colors');
 const colorList = colors.map(c => c.name.toLowerCase());
 const WebSocket = require('ws');
 const fs = require('fs');
+const player = require('play-sound')(opts = {player: 'powershell'});
 
 // options for chat client
-const opts = {
+const clientopts = {
   identity: {
     username: "finnleythebot",
     password: client_token
@@ -37,7 +38,7 @@ const options = {
 }
 
 // do client stuff
-const client = new tmi.client(opts);
+const client = new tmi.client(clientopts);
 
 client.on('message', onMessageHandler);
 client.on('connected', onConnectedHandler);
@@ -621,5 +622,22 @@ async function onMessageHandler(target, context, msg, self) {
     } else {
       client.say(target, `${context['display-name']} You are not a moderator!`);
     }
+  }
+
+  // custom welcomes
+  if (commandName.startsWith("fisch")) {
+    if (context['display-name'].toLowerCase() !== "aquastics") return;
+    player.play('./sounds/bürgerkink.wav', (err) => {
+      if (err) console.log(`Could not play sound: ${err}`);
+      client.say(target, `Hallu ${context['display-name']}!`);
+    });
+  }
+
+  if (commandName.startsWith("murk")) {
+    if (context['display-name'].toLowerCase() !== "sayoohnara") return;
+    player.play('./sounds/murkbruh.wav', (err) => {
+      if (err) console.log(`Could not play sound: ${err}`);
+      client.say(target, `${context['display-name']} bruh (helo)`);
+    });
   }
 }
