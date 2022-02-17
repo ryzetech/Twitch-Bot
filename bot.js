@@ -294,7 +294,7 @@ async function onConnectedHandler(addr, port) {
     const resdata = await axios.get("http://homeassistant.local:6942/api/" + deconz + "/lights/7");
     currentColor = await resdata.data.state.xy;
   } catch (e) {
-    console.error(e);
+    console.error("[ERR] Axios wasn't happy with the light request.");
   }
 }
 
