@@ -8,6 +8,8 @@ const prisma = new PrismaClient();
 const { client_token, deconz } = require("./token.json");
 const colors = require('./colors');
 const colorList = colors.map(c => c.name.toLowerCase());
+const WebSocket = require('ws');
+const fs = require('fs');
 
 // options for chat client
 const opts = {
@@ -41,6 +43,18 @@ client.on('message', onMessageHandler);
 client.on('connected', onConnectedHandler);
 
 client.connect();
+
+// chillhop websocket shit
+const wss = new WebSocket.Server({ port: 4001 });
+
+wss.on("connection", function connection(ws) {
+  ws.on("message", function incoming(e) {
+    let data = JSON.parse(e);
+    console.log(data);
+    fs.writeFileSync("./datagen/title.txt", data.title);
+    fs.writeFileSync("./datagen/artist.txt", data.artist);
+  });
+});
 
 // VARS BEGIN
 let currentC4Game = null;
