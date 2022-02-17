@@ -49,7 +49,7 @@ This action will cost you 50 coins.
 Here are some commands for mods only. Don't be surprised if you can't use them, Kevin!
 
 ### addquote \<quote>
-Adds a quote. Ideally, this should follow the scheme `quote ~ author, year`. Do not add paranthesis ("")!
+Adds a quote. Ideally, this should follow the scheme `quote ~ author, year`. Do not add any quotation marks ("")!
 
 ### clearc4
 Clears the game of connect four if the game is stalled or if one of the players does not respond.
