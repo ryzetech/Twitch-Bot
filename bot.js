@@ -48,13 +48,10 @@ client.connect();
 // chillhop websocket shit
 const wss = new WebSocket.Server({ port: 4001 });
 
-wss.on("connection", function connection(ws) {
-  ws.on("open", function open() {
-    console.log("[Chillhop2WS] Connection opened.");
-    fs.writeFileSync("./datagen/title.txt", "Chillhop2WS - Connection opened");
-    fs.writeFileSync("./datagen/artist.txt", "Waiting for data...");
-  });
+fs.writeFileSync("./datagen/title.txt", "Chillhop2WS - Server opened!");
+fs.writeFileSync("./datagen/artist.txt", "Waiting for data...");
 
+wss.on("connection", function connection(ws) {
   ws.on("message", function incoming(e) {
     let data = JSON.parse(e);
     console.log("[Chillhop2WS] Data: " + JSON.stringify(data));
@@ -358,7 +355,7 @@ async function onMessageHandler(target, context, msg, self) {
           increment: 1
         },
         coins: {
-          increment: Math.floor(Math.random() * 9) + 1
+          increment: Math.floor(Math.random() * 6)
         }
       }
     }
@@ -613,10 +610,16 @@ async function onMessageHandler(target, context, msg, self) {
   if (commandName.startsWith("addquote")) {
     if (context.badges.broadcaster || context['mod']) {
       const quote = commandName.slice(9);
+      let isGerman = false;
+      if (quote.startsWith(".DE ")) {
+        quote.slice(4);
+        isGerman = true;
+      }
       
       let qouteObj = await prisma.quote.create({
         data: {
-          quote: quote
+          quote: quote,
+          isGerman: isGerman
         }
       });
 
@@ -652,4 +655,14 @@ async function onMessageHandler(target, context, msg, self) {
       client.say(target, `${context['display-name']} bruh (helo)`);
     });
   }
+
+  /*
+  if (commandName.startsWith("azu")) {
+    if (context['display-name'].toLowerCase() !== "azuraderon") return;
+    player.play('./sounds/murkbruh.wav', (err) => {
+      if (err) console.log(`Could not play sound: ${err}`);
+      client.say(target, `The weird aunt appeared! Welcome ${context['display-name']}!`);
+    });
+  }
+  */
 }
