@@ -606,6 +606,10 @@ async function onMessageHandler(target, context, msg, self) {
     client.say(target, `${context['display-name']} You have ${user.coins} coins.`);
   }
 
+  if (commandName.startsWith("discord")) {
+    client.say(target, `${context['display-name']} You can find my Discord here: https://discord.gg/PFwzfQK6RW`);
+  }
+
   // mod section
   if (commandName.startsWith("addquote")) {
     if (context.badges.broadcaster || context['mod']) {
