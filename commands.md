@@ -52,6 +52,7 @@ Those sounds can only be played by their owner to notify me that they arrived. I
 |------------|--------------------|
 | Aquastics  | !fisch             |
 | sayoohnara | !murk              |
+| AzuraDeron | !azu               |
 
 # Mods
 Here are some commands for mods only. Don't be surprised if you can't use them, Kevin!

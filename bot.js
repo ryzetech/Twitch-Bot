@@ -678,13 +678,11 @@ async function onMessageHandler(target, context, msg, self) {
     });
   }
 
-  /*
   if (commandName.startsWith("azu")) {
     if (context['display-name'].toLowerCase() !== "azuraderon") return;
-    player.play('./sounds/murkbruh.wav', (err) => {
+    player.play('./sounds/azuz.mp3', (err) => {
       if (err) console.log(`Could not play sound: ${err}`);
       client.say(target, `The weird aunt appeared! Welcome ${context['display-name']}!`);
     });
   }
-  */
 }
