@@ -322,6 +322,21 @@ async function onConnectedHandler(addr, port) {
   }
 }
 
+function checkForForbidden(target, msg) {
+  msg = " " + msg + " ";
+
+  const forbiddenDE = {
+    "zollstock": "gliedermaßstab",
+    "schraubenzieher": "schraubendreher"
+  }
+
+  for (let key in forbiddenDE) {
+    if (msg.includes(key)) {
+      return client.say(target, `DAS HEIßT ${forbiddenDE[key].toLocaleUpperCase()}!!!`);
+    }
+  }
+}
+
 // message handler
 async function onMessageHandler(target, context, msg, self) {
   // ignore messages from self
@@ -333,6 +348,9 @@ async function onMessageHandler(target, context, msg, self) {
       id: context["user-id"]
     }
   });
+
+  // check if there are "forbidden words"
+  checkForForbidden(target, msg);
 
   // if there is no user, create one
   if (!user) {
