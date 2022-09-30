@@ -624,7 +624,7 @@ async function onMessageHandler(target, context, msg, self) {
     client.say(target, `${context['display-name']} You have ${user.coins} coins.`);
   }
 
-  if (commandName.startsWith("discord")) {
+  if (commandName.startsWith("discord") || commandName.startsWith("dc")) {
     client.say(target, `${context['display-name']} You can find my Discord here: https://discord.gg/PFwzfQK6RW`);
   }
 
