@@ -314,7 +314,7 @@ async function onConnectedHandler(addr, port) {
 
   // turn on light
   try {
-    await axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, bri: 50 });
+    await axios.put("http://homeassistant.local:6942/api/" + deconz + "/lights/7/state", { on: true, bri: 100 });
     const resdata = await axios.get("http://homeassistant.local:6942/api/" + deconz + "/lights/7");
     currentColor = await resdata.data.state.xy;
   } catch (e) {
