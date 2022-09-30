@@ -28,6 +28,10 @@ var timeouts = {
   light: {
     stamp: 0,
     timeout: 90000
+  },
+  mint: {
+    stamp: 0,
+    timeout: 90000
   }
 };
 
@@ -678,6 +682,15 @@ async function onMessageHandler(target, context, msg, self) {
     player.play('./sounds/azuz.mp3', (err) => {
       if (err) console.log(`Could not play sound: ${err}`);
       client.say(target, `The weird aunt appeared! Welcome ${context['display-name']}!`);
+    });
+  }
+
+  if (commandName.startsWith("mint")) {
+    if (context['display-name'].toLowerCase() !== "doggonemint" || ((timeouts.mint.stamp + timeouts.mint.timeout) > Date.now())) return;
+    player.play('./sounds/mint.mp3', (err) => {
+      if (err) console.log(`Could not play sound: ${err}`);
+      client.say(target, `MINT IS HERE! Hello ${context['display-name']} my beloved!`);
+      timeouts.mint.stamp = Date.now();
     });
   }
 }
