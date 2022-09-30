@@ -53,7 +53,7 @@ client.connect();
 const wss = new WebSocket.Server({ port: 4001 });
 
 fs.writeFileSync("./datagen/title.txt", "Chillhop2WS - Server opened!");
-fs.writeFileSync("./datagen/artist.txt", "Waiting for data...");
+fs.writeFileSync("./datagen/artist.txt", "github.com/ryzetech/Chillhop2WS");
 
 wss.on("connection", function connection(ws) {
   ws.on("message", function incoming(e) {
