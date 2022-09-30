@@ -620,7 +620,7 @@ async function onMessageHandler(target, context, msg, self) {
   }
 
   if (commandName.startsWith("discord") || commandName.startsWith("dc")) {
-    client.say(target, `${context['display-name']} You can find my Discord here: https://discord.gg/PFwzfQK6RW`);
+    client.say(target, `${context['display-name']} You can find my Discord here: https://discord.gg/N9CuvqJtFK`);
   }
 
   // mod section
